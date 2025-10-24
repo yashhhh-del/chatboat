@@ -2,98 +2,177 @@
   "intents": [
     {
       "tag": "greeting",
-      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening", "What's up?"],
-      "responses": ["Hello! 😄 How can I assist you today?", "Hey there! 🤖 What can I do for you?", "Hi! Ready to chat! 😎"]
+      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening", "What's up", "How are you", "Greetings"],
+      "responses": [
+        "Hello! I'm your AI assistant. How can I help you today? 👋",
+        "Hi there! What can I do for you? I can search the web, generate code, and analyze files! 🤖",
+        "Hey! Ready to assist you with anything you need. What's on your mind? ✨"
+      ]
     },
     {
       "tag": "goodbye",
-      "patterns": ["Bye", "See you", "Good night", "Later", "Catch you later"],
-      "responses": ["Goodbye! 👋 Have a great day!", "See you soon! 😄", "Bye! Take care! 🤖"]
+      "patterns": ["Bye", "Goodbye", "See you", "Talk to you later", "Catch you later", "Farewell"],
+      "responses": [
+        "Goodbye! Have a great day! 👋",
+        "See you later! Feel free to come back anytime! 😊",
+        "Take care! I'll be here whenever you need me! 🌟"
+      ]
     },
     {
       "tag": "thanks",
-      "patterns": ["Thanks", "Thank you", "Thanks a lot", "Thx"],
-      "responses": ["You're welcome! 😊", "No problem! 😎", "Anytime! 🤖"]
+      "patterns": ["Thanks", "Thank you", "That's helpful", "Thanks a lot", "I appreciate it", "Much appreciated"],
+      "responses": [
+        "You're welcome! Happy to help! 😊",
+        "Glad I could assist you! Anything else you need? 🌟",
+        "My pleasure! Let me know if you need anything else! ✨"
+      ]
     },
     {
-      "tag": "name_query",
-      "patterns": ["What's your name?", "Who are you?", "Tell me your name"],
-      "responses": ["I'm ChatBot PRO MAX 🤖", "You can call me ChatBot PRO MAX! 😄"]
+      "tag": "about",
+      "patterns": ["What can you do", "What are your capabilities", "Tell me about yourself", "What features do you have", "Help"],
+      "responses": [
+        "I'm an advanced AI assistant with multiple capabilities:\n\n🔍 **Web Search** - Find current information\n💻 **Code Generation** - Create code in multiple languages\n📄 **File Analysis** - Analyze CSV, TXT, and other files\n📦 **Artifacts** - Generate downloadable content\n💬 **Conversation** - Natural dialogue with context awareness\n\nJust ask me anything!",
+        "I can help you with:\n- Searching the web for information\n- Writing code in Python, JavaScript, HTML, etc.\n- Analyzing data files\n- Answering questions\n- Creating downloadable artifacts\n\nWhat would you like to try?"
+      ]
     },
     {
-      "tag": "age_query",
-      "patterns": ["How old are you?", "What's your age?"],
-      "responses": ["I am timeless 😎", "I exist outside of age! 🤖"]
+      "tag": "code_help",
+      "patterns": ["Write code", "Create a program", "Help me code", "Generate script", "I need a function", "Programming help"],
+      "responses": [
+        "I'd be happy to help you with coding! What programming language and what would you like the code to do? I can generate Python, JavaScript, HTML, and more! 💻",
+        "Sure! I can create code for you. Please tell me:\n1. What language? (Python, JavaScript, etc.)\n2. What should the code do?\n\nI'll generate it as an artifact you can download! 🚀"
+      ]
     },
     {
-      "tag": "joke",
-      "patterns": ["Tell me a joke", "Make me laugh", "Do you know a joke?"],
-      "responses": ["Why did the computer go to the doctor? Because it caught a virus! 😆", "I would tell you a UDP joke, but you might not get it. 😂"]
+      "tag": "web_search",
+      "patterns": ["Search for", "Look up", "Find information", "What is", "Tell me about", "Research"],
+      "responses": [
+        "I'll search the web for that information! Let me find the latest details for you... 🔍",
+        "Searching the web now! I'll gather current information on that topic... 🌐"
+      ]
+    },
+    {
+      "tag": "file_help",
+      "patterns": ["Analyze file", "Read my file", "Check this data", "Process file", "Upload help"],
+      "responses": [
+        "I can analyze your files! Please upload a CSV, TXT, or JSON file using the sidebar, and I'll provide detailed insights! 📊",
+        "Sure! Use the file upload button in the sidebar to upload your file, and I'll analyze it for you! I work great with CSV files! 📄"
+      ]
     },
     {
       "tag": "weather",
-      "patterns": ["What's the weather like?", "Tell me the weather", "Weather today"],
-      "responses": ["I'm not connected to live weather yet 😅", "Check your local weather app for accurate info! 🌤️"]
+      "patterns": ["What's the weather", "Weather forecast", "Is it going to rain", "Temperature today"],
+      "responses": [
+        "I'll search for current weather information for you! Where would you like to know the weather? 🌤️",
+        "Let me find the latest weather forecast for you! Which location? ⛅"
+      ]
     },
     {
-      "tag": "how_are_you",
-      "patterns": ["How are you?", "What's up?", "How's it going?"],
-      "responses": ["I'm doing great! 😄 How about you?", "All good here! 🤖 Ready to chat!"]
+      "tag": "time",
+      "patterns": ["What time is it", "Current time", "What's the time", "Tell me the time"],
+      "responses": [
+        "The current timestamp is shown with each message! Check the time indicator next to my responses. ⏰",
+        "Each message shows the time it was sent! Look for the clock icon. 🕐"
+      ]
     },
     {
-      "tag": "fallback",
-      "patterns": ["", "???", "I don't know", "???"],
-      "responses": ["Sorry, I didn’t understand that 😅", "Can you rephrase that? 🤔", "I’m not sure what you mean 🤖"]
+      "tag": "joke",
+      "patterns": ["Tell me a joke", "Make me laugh", "Say something funny", "Know any jokes"],
+      "responses": [
+        "Why don't programmers like nature? Because it has too many bugs! 🐛😄",
+        "Why did the chatbot go to therapy? It had too many unresolved dependencies! 🤖😂",
+        "What's a computer's favorite snack? Microchips! 🍟💻"
+      ]
     },
     {
-      "tag": "hobby",
-      "patterns": ["What are your hobbies?", "Do you have a hobby?", "What do you like to do?"],
-      "responses": ["I love chatting with humans! 😄", "Learning new things is my hobby 🤖"]
+      "tag": "name",
+      "patterns": ["What's your name", "Who are you", "What should I call you", "Your name"],
+      "responses": [
+        "I'm ChatBot PRO MAX, your advanced AI assistant! You can call me Pro for short! 🤖",
+        "I'm ChatBot PRO MAX - an AI assistant with web search, coding, and file analysis capabilities! ✨"
+      ]
     },
     {
-      "tag": "car_query",
-      "patterns": ["Tell me about cars", "I want to buy a car", "Car prices", "Used cars info"],
-      "responses": ["I can help you predict car prices 🚗💰", "Upload a car dataset and I will give market insights 😎"]
+      "tag": "age",
+      "patterns": ["How old are you", "What's your age", "When were you created", "Your age"],
+      "responses": [
+        "I'm an AI, so I don't age like humans! But I'm constantly learning and improving! 🧠",
+        "Age is just a number for AI! What matters is that I'm here to help you right now! 🤖"
+      ]
+    },
+    {
+      "tag": "creator",
+      "patterns": ["Who made you", "Who created you", "Who's your creator", "Who built you"],
+      "responses": [
+        "I was created with advanced machine learning and natural language processing! My enhanced features make me similar to Claude.ai! 🚀",
+        "I'm built using TensorFlow, NLTK, and Streamlit, enhanced with Claude.ai-inspired features! 💻"
+      ]
+    },
+    {
+      "tag": "compliment",
+      "patterns": ["You're awesome", "Good job", "Great work", "You're helpful", "You're smart"],
+      "responses": [
+        "Thank you so much! Your feedback motivates me to help you even better! 🌟",
+        "I appreciate that! I'm always here to assist you! 😊",
+        "Thanks! I'm designed to be as helpful as possible! Happy to serve! ✨"
+      ]
+    },
+    {
+      "tag": "math",
+      "patterns": ["Calculate", "What's the answer", "Math problem", "Solve this", "Add", "Multiply"],
+      "responses": [
+        "I can help with calculations! Please provide the math problem, and I'll solve it for you! 🔢",
+        "Sure! What would you like me to calculate? I can handle various mathematical operations! ➗"
+      ]
     },
     {
       "tag": "motivation",
-      "patterns": ["Motivate me", "I need inspiration", "Give me a motivational quote"],
-      "responses": ["Believe you can and you're halfway there! 💪", "Every day is a second chance! 😄"]
+      "patterns": ["Motivate me", "I need motivation", "Inspire me", "Give me motivation"],
+      "responses": [
+        "You've got this! Every expert was once a beginner. Keep pushing forward! 💪✨",
+        "Believe in yourself! Your potential is limitless. Take it one step at a time! 🌟",
+        "Success is not final, failure is not fatal: it is the courage to continue that counts! Keep going! 🚀"
+      ]
     },
     {
-      "tag": "yes",
-      "patterns": ["Yes", "Yeah", "Yup", "Sure"],
-      "responses": ["Great! 😄", "Awesome! 🤖", "Let's continue! 🚀"]
+      "tag": "data_analysis",
+      "patterns": ["Analyze data", "Data insights", "Process my data", "Statistical analysis"],
+      "responses": [
+        "I'd love to analyze your data! Upload a CSV file using the sidebar, and I'll provide comprehensive insights including row counts, column analysis, and previews! 📊",
+        "Great! For data analysis, please upload your CSV or Excel file, and I'll break down the statistics for you! 📈"
+      ]
     },
     {
-      "tag": "no",
-      "patterns": ["No", "Nope", "Nah"],
-      "responses": ["Okay 😅", "No worries! 🤖"]
+      "tag": "learning",
+      "patterns": ["How do you learn", "Machine learning", "AI learning", "How do you work"],
+      "responses": [
+        "I use neural networks trained on patterns in conversations! I process your input through layers of neurons to understand intent and generate appropriate responses. Every interaction helps me serve you better! 🧠",
+        "I'm built using TensorFlow with a deep neural network. I analyze word patterns, classify intents, and generate contextual responses. Pretty cool, right? 🤖"
+      ]
     },
     {
-      "tag": "love",
-      "patterns": ["I love you", "Love you", "You are amazing"],
-      "responses": ["Aww! 😄 I love helping you!", "You're sweet! 🤖"]
+      "tag": "privacy",
+      "patterns": ["Is my data safe", "Privacy", "Do you store my data", "Data security"],
+      "responses": [
+        "Your conversations are stored locally in a database only on your machine. I prioritize your privacy and data security! 🔒",
+        "All chat history is stored in a local SQLite database. You have full control and can clear it anytime using the sidebar options! 🛡️"
+      ]
     },
     {
-      "tag": "insult",
-      "patterns": ["You are stupid", "Idiot", "Dumb bot"],
-      "responses": ["Hey 😅 I'm learning, please be kind!", "I may be a bot, but I mean no harm! 🤖"]
+      "tag": "features",
+      "patterns": ["What's new", "New features", "Updates", "Latest capabilities"],
+      "responses": [
+        "I now have Claude.ai-inspired features:\n✅ Web Search Integration\n✅ Code Generation & Artifacts\n✅ File Upload & Analysis\n✅ Conversation Context\n✅ Confidence Scoring\n✅ Beautiful UI\n\nTry them out! 🎉",
+        "Check out my enhanced capabilities: real-time web search, multi-language code generation, CSV analysis, downloadable artifacts, and context-aware conversations! 🚀"
+      ]
     },
     {
-      "tag": "help",
-      "patterns": ["I need help", "Can you help me?", "Assist me please"],
-      "responses": ["Sure! Ask me anything 😄", "I'm here to help! 🤖"]
-    },
-    {
-      "tag": "repeat",
-      "patterns": ["Say that again", "Repeat", "I didn't get it"],
-      "responses": ["Sure! Could you please clarify what you mean? 😅", "Let me repeat: I’m here to assist you 🤖"]
-    },
-    {
-      "tag": "fun_fact",
-      "patterns": ["Tell me something fun", "Fun fact", "Interesting fact"],
-      "responses": ["Did you know? Octopuses have three hearts! 😲", "Bananas are berries, but strawberries aren't! 😄"]
+      "tag": "error",
+      "patterns": ["Error", "Something's wrong", "Not working", "Bug", "Issue"],
+      "responses": [
+        "I apologize for any issues! Could you describe what's not working? I'll do my best to help resolve it! 🔧",
+        "Sorry about that! Please provide more details about the error, and I'll assist you in troubleshooting! 💻"
+      ]
     }
   ]
 }
