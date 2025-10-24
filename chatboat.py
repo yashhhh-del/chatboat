@@ -1,17 +1,19 @@
+# ============================
 # app.py — Streamlit Chatbot (NLP + SQLite + OpenAI Ready)
+# ============================
 
 import sys
+import os
 
+# ---- SQLITE FIX ----
 try:
     import pysqlite3
     sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-except ModuleNotFoundError:
+except Exception:
     import sqlite3
-
 
 import streamlit as st
 import json
-import sqlite3
 import random
 import numpy as np
 import pickle
@@ -22,13 +24,20 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 
 # ---- INITIAL SETUP ----
-lemmatizer = WordNetLemmatizer()
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
-st.title("🤖 Smart ChatBot with NLP and Memory")
+st.set_page_config(page_title="🤖 Smart Chatbot", page_icon="💬")
+st.title("💬 AI Smart Chatbot (NLP + Memory)")
 
-# ---- NLTK RESOURCES ----
-nltk.download('punkt')
-nltk.download('wordnet')
+lemmatizer = WordNetLemmatizer()
+
+# ---- NLTK DOWNLOAD HANDLER ----
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+try:
+    nltk.data.find("corpora/wordnet")
+except LookupError:
+    nltk.download("wordnet")
 
 # ---- DATABASE SETUP ----
 conn = sqlite3.connect('chat_memory.db')
@@ -36,15 +45,15 @@ cursor = conn.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS chat_memory (user_input TEXT, bot_response TEXT)")
 conn.commit()
 
-# ---- LOAD DATA ----
-with open("intents.json", "r") as file:
-    intents = json.load(file)
+# ---- LOAD INTENTS ----
+with open("intents.json", "r", encoding="utf-8") as f:
+    intents = json.load(f)
 
-# ---- TRAIN MODEL IF NOT EXISTS ----
-try:
-    model = pickle.load(open('trained_chatbot.pkl', 'rb'))
-    words, classes = pickle.load(open('training_data.pkl', 'rb'))
-except:
+# ---- LOAD OR TRAIN MODEL ----
+if os.path.exists("trained_chatbot.pkl") and os.path.exists("training_data.pkl"):
+    model = pickle.load(open("trained_chatbot.pkl", "rb"))
+    words, classes = pickle.load(open("training_data.pkl", "rb"))
+else:
     words, classes, documents = [], [], []
     ignore_letters = ['?', '!', '.', ',']
 
@@ -59,16 +68,20 @@ except:
     words = sorted(set([lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_letters]))
     classes = sorted(classes)
 
-    training, output_empty = [], [0] * len(classes)
+    training = []
+    output_empty = [0] * len(classes)
+
     for doc in documents:
-        bag = [1 if w in [lemmatizer.lemmatize(w.lower()) for w in doc[0]] else 0 for w in words]
-        row = list(output_empty)
-        row[classes.index(doc[1])] = 1
-        training.append([bag, row])
+        bag = [1 if w in [lemmatizer.lemmatize(word.lower()) for word in doc[0]] else 0 for w in words]
+        output_row = list(output_empty)
+        output_row[classes.index(doc[1])] = 1
+        training.append([bag, output_row])
 
     random.shuffle(training)
     training = np.array(training, dtype=object)
-    train_x, train_y = list(training[:, 0]), list(training[:, 1])
+
+    train_x = np.array(list(training[:, 0]))
+    train_y = np.array(list(training[:, 1]))
 
     model = Sequential([
         Dense(128, input_shape=(len(train_x[0]),), activation='relu'),
@@ -77,12 +90,14 @@ except:
         Dropout(0.5),
         Dense(len(train_y[0]), activation='softmax')
     ])
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.01), metrics=['accuracy'])
-    model.fit(np.array(train_x), np.array(train_y), epochs=100, batch_size=5, verbose=0)
-    pickle.dump((words, classes), open('training_data.pkl', 'wb'))
-    pickle.dump(model, open('trained_chatbot.pkl', 'wb'))
 
-# ---- UTILITIES ----
+    model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.01), metrics=['accuracy'])
+    model.fit(train_x, train_y, epochs=100, batch_size=5, verbose=0)
+
+    pickle.dump((words, classes), open("training_data.pkl", "wb"))
+    pickle.dump(model, open("trained_chatbot.pkl", "wb"))
+
+# ---- HELPER FUNCTIONS ----
 def clean_text(sentence):
     tokens = nltk.word_tokenize(sentence)
     return [lemmatizer.lemmatize(w.lower()) for w in tokens]
@@ -94,8 +109,8 @@ def bag_of_words(sentence):
 def predict_class(sentence):
     bow = bag_of_words(sentence)
     res = model.predict(np.array([bow]))[0]
-    thresh = 0.25
-    results = [[i, r] for i, r in enumerate(res) if r > thresh]
+    threshold = 0.25
+    results = [[i, r] for i, r in enumerate(res) if r > threshold]
     results.sort(key=lambda x: x[1], reverse=True)
     return classes[results[0][0]] if results else None
 
@@ -112,19 +127,19 @@ def chatbot_response(msg):
     conn.commit()
     return response
 
-# ---- STREAMLIT UI ----
-st.sidebar.header("📁 Chat Options")
-if st.sidebar.button("🗑 Clear Chat"):
+# ---- SIDEBAR ----
+st.sidebar.header("⚙️ Chat Controls")
+if st.sidebar.button("🗑 Clear Chat History"):
     cursor.execute("DELETE FROM chat_memory")
     conn.commit()
-    if "messages" in st.session_state:
-        st.session_state.messages = []
-    st.success("Chat cleared successfully!")
+    st.session_state.messages = []
+    st.success("Chat history cleared!")
 
+# ---- MAIN CHAT UI ----
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-user_input = st.chat_input("Say something...")
+user_input = st.chat_input("Type your message...")
 
 if user_input:
     reply = chatbot_response(user_input)
@@ -136,5 +151,3 @@ for sender, msg in st.session_state.messages:
         st.chat_message("user").markdown(msg)
     else:
         st.chat_message("assistant").markdown(msg)
-
-
