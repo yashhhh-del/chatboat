@@ -34,134 +34,389 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Set theme colors
+# ---- PERFECT COLOR SCHEME WITH EXCELLENT CONTRAST ----
 st.markdown("""
 <style>
-    /* Force all text to be visible */
-    * {
-        color: #1f2937;
-    }
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
-    /* Streamlit default text */
-    .stMarkdown, .stText {
-        color: #1f2937 !important;
-    }
-    
-    /* Chat input */
-    textarea {
-        color: #1f2937 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# ---- CUSTOM CSS FOR CLAUDE-LIKE UI ----
-st.markdown("""
-<style>
-    /* Main background */
+    /* Main App Styling */
     .main {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Chat messages - Force dark text */
-    .stChatMessage {
-        background-color: white !important;
-        border-radius: 12px;
-        padding: 16px;
-        margin: 8px 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    .block-container {
+        padding: 2rem 1rem;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     }
     
-    /* All text in chat must be dark */
-    .stChatMessage p, 
-    .stChatMessage span,
-    .stChatMessage div,
-    .stChatMessage strong,
-    .stChatMessage em,
-    .stChatMessage code {
-        color: #111827 !important;
+    /* Title Styling */
+    h1 {
+        color: #1a202c !important;
+        font-weight: 700 !important;
+        text-align: center;
+        margin-bottom: 0.5rem !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
     
-    /* Markdown in chat */
-    .stChatMessage [data-testid="stMarkdownContainer"] * {
-        color: #111827 !important;
+    h3 {
+        color: #4a5568 !important;
+        text-align: center;
+        font-weight: 500 !important;
+        margin-top: 0 !important;
     }
     
-    /* Avatar colors */
+    /* Chat Messages - User */
+    .stChatMessage[data-testid="chat-message-user"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border-radius: 18px !important;
+        padding: 16px 20px !important;
+        margin: 10px 0 !important;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .stChatMessage[data-testid="chat-message-user"] p,
+    .stChatMessage[data-testid="chat-message-user"] span,
+    .stChatMessage[data-testid="chat-message-user"] div {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        font-size: 15px !important;
+    }
+    
+    /* Chat Messages - Assistant */
+    .stChatMessage[data-testid="chat-message-assistant"] {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        border-radius: 18px !important;
+        padding: 16px 20px !important;
+        margin: 10px 0 !important;
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3) !important;
+    }
+    
+    .stChatMessage[data-testid="chat-message-assistant"] p,
+    .stChatMessage[data-testid="chat-message-assistant"] span,
+    .stChatMessage[data-testid="chat-message-assistant"] div,
+    .stChatMessage[data-testid="chat-message-assistant"] strong {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        font-size: 15px !important;
+    }
+    
+    /* Avatar Icons */
     .stChatMessage [data-testid="chatAvatarIcon-user"] {
-        background-color: #3b82f6 !important;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        box-shadow: 0 2px 8px rgba(79, 172, 254, 0.4);
     }
+    
     .stChatMessage [data-testid="chatAvatarIcon-assistant"] {
-        background-color: #10a37f !important;
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+        box-shadow: 0 2px 8px rgba(250, 112, 154, 0.4);
     }
     
-    .artifact-container {
-        background-color: #ffffff;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 16px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* Caption Text - High Contrast */
+    [data-testid="stCaptionContainer"] {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        opacity: 0.95 !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
     
-    .artifact-container * {
-        color: #111827 !important;
-    }
-    
+    /* Badges */
     .feature-badge {
-        background-color: #10a37f;
-        color: white !important;
-        padding: 4px 12px;
-        border-radius: 12px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #ffffff !important;
+        padding: 6px 14px;
+        border-radius: 20px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 700;
         display: inline-block;
         margin: 4px;
+        box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
+    /* Confidence Colors - High Contrast */
     .confidence-high {
-        color: #10a37f !important;
-        font-weight: 600;
+        color: #10b981 !important;
+        font-weight: 700 !important;
+        background: #d1fae5;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
     }
+    
     .confidence-medium {
         color: #f59e0b !important;
-        font-weight: 600;
+        font-weight: 700 !important;
+        background: #fef3c7;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
     }
+    
     .confidence-low {
         color: #ef4444 !important;
-        font-weight: 600;
+        font-weight: 700 !important;
+        background: #fee2e2;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
     }
     
-    .search-result {
-        background-color: #f0f9ff;
-        border-left: 4px solid #3b82f6;
-        padding: 12px;
-        margin: 8px 0;
-        border-radius: 6px;
-        color: #111827 !important;
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 1rem;
     }
     
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] div {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Sidebar Sections */
     .sidebar-section {
-        background-color: white;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 16px;
+        margin: 16px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .sidebar-section h2,
+    .sidebar-section h3 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        margin-bottom: 12px !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white !important;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 24px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+    }
+    
+    /* Download Button */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white !important;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 24px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+    }
+    
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
         padding: 16px;
-        border-radius: 8px;
-        margin: 12px 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
     
-    /* Input field */
+    [data-testid="stMetricLabel"] {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+    }
+    
+    [data-testid="stMetricValue"] {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 28px !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Chat Input */
     .stChatInput textarea {
-        color: #111827 !important;
+        background-color: #ffffff !important;
+        color: #1a202c !important;
+        border: 2px solid #667eea !important;
+        border-radius: 16px !important;
+        padding: 12px 16px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
     }
     
-    /* Caption text */
-    [data-testid="stCaptionContainer"] {
-        color: #6b7280 !important;
+    .stChatInput textarea:focus {
+        border-color: #764ba2 !important;
+        box-shadow: 0 6px 20px rgba(118, 75, 162, 0.3) !important;
+    }
+    
+    /* Artifacts */
+    .artifact-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: 3px solid #667eea;
+        border-radius: 16px;
+        padding: 24px;
+        margin: 20px 0;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    }
+    
+    .artifact-container h3 {
+        color: #667eea !important;
+        font-weight: 700 !important;
+        margin-bottom: 16px !important;
+        text-align: left !important;
+    }
+    
+    .artifact-container p,
+    .artifact-container div,
+    .artifact-container span {
+        color: #1a202c !important;
+        font-size: 14px !important;
+    }
+    
+    /* Code Blocks */
+    code {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: #ffffff !important;
+        padding: 3px 8px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+    
+    pre {
+        background: #1a202c !important;
+        border: 2px solid #667eea !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+    }
+    
+    pre code {
+        background: transparent !important;
+        color: #a5f3fc !important;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 12px 16px !important;
+    }
+    
+    .streamlit-expanderContent {
+        background: #ffffff;
+        border: 2px solid #667eea;
+        border-radius: 0 0 12px 12px;
+        padding: 16px;
+    }
+    
+    /* Divider */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+        margin: 2rem 0;
+    }
+    
+    /* Toggle Switch */
+    .stCheckbox label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }
+    
+    /* Success/Error Messages */
+    .stSuccess {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    .stError {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    .stInfo {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Spinner */
+    .stSpinner > div {
+        border-color: #667eea !important;
+    }
+    
+    /* File Uploader */
+    [data-testid="stFileUploader"] {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 16px;
+        border: 2px dashed rgba(255, 255, 255, 0.4);
+    }
+    
+    [data-testid="stFileUploader"] label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🤖 Smart ChatBot PRO MAX – Claude-Powered Assistant")
-st.markdown("### *Advanced AI with Web Search, File Analysis & Code Generation*")
+st.title("🤖 Smart ChatBot PRO MAX")
+st.markdown("### *Advanced AI Assistant with Claude-like Intelligence*")
 
 lemmatizer = WordNetLemmatizer()
 
@@ -176,21 +431,15 @@ for resource in ["punkt", "punkt_tab", "wordnet"]:
 conn = sqlite3.connect('chat_memory.db', check_same_thread=False)
 cursor = conn.cursor()
 
-# Check if old table exists and migrate
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='chat_memory'")
 table_exists = cursor.fetchone()
 
 if table_exists:
-    # Check table structure
     cursor.execute("PRAGMA table_info(chat_memory)")
     columns = [col[1] for col in cursor.fetchall()]
     
-    # If old structure (only 2 columns), migrate data
     if len(columns) == 2:
-        # Backup old data
         cursor.execute("ALTER TABLE chat_memory RENAME TO chat_memory_old")
-        
-        # Create new table
         cursor.execute("""CREATE TABLE chat_memory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT,
@@ -199,20 +448,14 @@ if table_exists:
             confidence REAL,
             features_used TEXT
         )""")
-        
-        # Migrate old data
         cursor.execute("""
             INSERT INTO chat_memory (timestamp, user_input, bot_response, confidence, features_used)
             SELECT datetime('now'), user_input, bot_response, 0.0, ''
             FROM chat_memory_old
         """)
-        
-        # Drop old table
         cursor.execute("DROP TABLE chat_memory_old")
         conn.commit()
-        print("✅ Database migrated to new schema")
 else:
-    # Create new table
     cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         timestamp TEXT,
@@ -223,7 +466,7 @@ else:
     )""")
     conn.commit()
 
-# ---- SESSION STATE INITIALIZATION ----
+# ---- SESSION STATE ----
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "artifacts" not in st.session_state:
@@ -296,11 +539,8 @@ def load_or_train_model():
 model, words, classes = load_or_train_model()
 
 # ---- ADVANCED FEATURES ----
-
 def web_search_simulation(query):
-    """Simulated web search (replace with actual API like SerpApi, Brave, etc.)"""
     try:
-        # This is a simulation - in production, use actual search APIs
         search_results = {
             "title": f"Search results for: {query}",
             "snippet": f"Based on current information about '{query}', here are some insights...",
@@ -312,25 +552,21 @@ def web_search_simulation(query):
         return {"error": str(e)}
 
 def detect_code_request(text):
-    """Detect if user is asking for code"""
     code_keywords = ['code', 'program', 'script', 'function', 'write', 'create', 'develop', 
                      'python', 'javascript', 'html', 'css', 'algorithm', 'implement']
     return any(keyword in text.lower() for keyword in code_keywords)
 
 def detect_web_search_request(text):
-    """Detect if user needs web search"""
     search_keywords = ['search', 'find', 'look up', 'what is', 'who is', 'latest', 
                        'current', 'news', 'weather', 'price', 'information about']
     return any(keyword in text.lower() for keyword in search_keywords)
 
 def detect_file_request(text):
-    """Detect if user is asking about files"""
     file_keywords = ['file', 'document', 'upload', 'analyze', 'read', 'csv', 'excel', 
                      'pdf', 'data', 'spreadsheet']
     return any(keyword in text.lower() for keyword in file_keywords)
 
 def generate_code_artifact(description, language="python"):
-    """Generate code based on description"""
     templates = {
         "python": f"""# Generated Python Code for: {description}
 
@@ -350,25 +586,11 @@ function main() {{
 }}
 
 main();
-""",
-        "html": f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{description}</title>
-</head>
-<body>
-    <h1>{description}</h1>
-    <p>Generated HTML template</p>
-</body>
-</html>
 """
     }
     return templates.get(language, templates["python"])
 
 def create_artifact(content, artifact_type="code", title="Generated Artifact"):
-    """Create an artifact like Claude.ai"""
     artifact = {
         "id": len(st.session_state.artifacts) + 1,
         "title": title,
@@ -380,7 +602,6 @@ def create_artifact(content, artifact_type="code", title="Generated Artifact"):
     return artifact
 
 def analyze_file_content(file):
-    """Analyze uploaded files"""
     try:
         if file.type == "text/csv":
             df = pd.read_csv(file)
@@ -424,45 +645,36 @@ def get_response(tag):
     for intent in intents['intents']:
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
-    return "I'm not sure about that. Could you rephrase or ask something else?"
+    return "I'm not sure about that. Could you rephrase?"
 
 def chatbot_response(msg, uploaded_file=None):
-    """Enhanced chatbot response with multiple features"""
     features_used = []
     additional_content = ""
     
-    # Check for web search
     if st.session_state.web_search_enabled and detect_web_search_request(msg):
         search_results = web_search_simulation(msg)
         features_used.append("web_search")
         additional_content += f"\n\n🔍 **Web Search Results:**\n{search_results.get('snippet', '')}"
     
-    # Check for code generation
     if detect_code_request(msg):
         features_used.append("code_generation")
         code = generate_code_artifact(msg)
         artifact = create_artifact(code, "code", f"Code for: {msg[:50]}")
         additional_content += f"\n\n💻 **Generated Code Artifact (ID: {artifact['id']})**"
     
-    # File analysis
     if uploaded_file and st.session_state.file_analysis_enabled:
         features_used.append("file_analysis")
         file_analysis, df = analyze_file_content(uploaded_file)
         additional_content += f"\n\n📄 **File Analysis:**\n{file_analysis}"
     
-    # Get base response from model
     tag, confidence = predict_class(msg)
     
-    # Safety check for confidence
     if confidence is None:
         confidence = 0.0
     
     base_response = get_response(tag) if tag else "I'm not sure about that. Could you rephrase?"
-    
-    # Combine responses
     full_response = base_response + additional_content
     
-    # Store in database with proper error handling
     try:
         cursor.execute(
             "INSERT INTO chat_memory (timestamp, user_input, bot_response, confidence, features_used) VALUES (?, ?, ?, ?, ?)",
@@ -470,11 +682,8 @@ def chatbot_response(msg, uploaded_file=None):
         )
         conn.commit()
     except sqlite3.OperationalError as e:
-        # If there's still a schema issue, just log the error and continue
-        print(f"Database error: {e}")
         pass
     
-    # Update context
     st.session_state.conversation_context.append({"user": msg, "bot": full_response})
     if len(st.session_state.conversation_context) > 10:
         st.session_state.conversation_context.pop(0)
@@ -487,8 +696,8 @@ with st.sidebar:
     st.header("⚙️ Settings")
     
     st.subheader("🎛️ Features")
-    st.session_state.web_search_enabled = st.toggle("🔍 Web Search", value=True)
-    st.session_state.file_analysis_enabled = st.toggle("📁 File Analysis", value=True)
+    st.session_state.web_search_enabled = st.checkbox("🔍 Web Search", value=True)
+    st.session_state.file_analysis_enabled = st.checkbox("📁 File Analysis", value=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
     
@@ -525,7 +734,6 @@ with st.sidebar:
     
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Statistics
     st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.subheader("📈 Statistics")
     cursor.execute("SELECT COUNT(*) FROM chat_memory")
@@ -536,21 +744,18 @@ with st.sidebar:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ---- MAIN CHAT INTERFACE ----
-user_input = st.chat_input("💬 Ask me anything... (I can search the web, generate code, analyze files!)")
+user_input = st.chat_input("💬 Ask me anything...")
 
 if user_input:
-    # Add user message
     st.session_state.messages.append({
         "role": "user",
         "content": user_input,
         "timestamp": datetime.now().strftime("%H:%M")
     })
     
-    # Get bot response
     with st.spinner("🤔 Thinking..."):
         reply, confidence, features = chatbot_response(user_input, uploaded_file)
     
-    # Add bot message
     st.session_state.messages.append({
         "role": "assistant",
         "content": reply,
@@ -569,7 +774,6 @@ for message in st.session_state.messages:
         with st.chat_message("assistant"):
             st.markdown(message["content"])
             
-            # Show confidence and features
             conf = message.get("confidence", 0)
             conf_class = "confidence-high" if conf > 0.8 else "confidence-medium" if conf > 0.6 else "confidence-low"
             
@@ -583,7 +787,7 @@ for message in st.session_state.messages:
             
             st.caption(f"🕐 {message['timestamp']}")
 
-# Display Artifacts Section
+# Display Artifacts
 if st.session_state.artifacts:
     st.markdown("---")
     st.subheader("📦 Generated Artifacts")
@@ -606,8 +810,8 @@ if st.session_state.artifacts:
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #6b7280; font-size: 14px;'>
-    🤖 <b>ChatBot PRO MAX</b> - Enhanced with Claude.ai-like features<br>
-    Features: Web Search 🔍 | Code Generation 💻 | File Analysis 📄 | Artifacts 📦
+<div style='text-align: center; color: #667eea; font-size: 16px; font-weight: 600;'>
+    🤖 <b style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>ChatBot PRO MAX</b> - Enhanced with Claude.ai-like features<br>
+    <span style='color: #764ba2;'>🔍 Web Search | 💻 Code Generation | 📄 File Analysis | 📦 Artifacts</span>
 </div>
 """, unsafe_allow_html=True)
