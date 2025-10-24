@@ -1,14 +1,4 @@
 streamlit
 openai
-tensorflow
-scikit-learn
-numpy
-pandas
-nltk
-joblib
-requests
+python-dotenv
 sqlite3-binary
-matplotlib
-seaborn
-regex
-
