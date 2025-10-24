@@ -1,5 +1,5 @@
-# chatbot_full.py
-# Complete Chatbot with NLP, Memory, and Database support
+# chatbot_full.py — Complete NLP Chatbot with Memory & Database Support
+# Compatible with Python 3.10+, TensorFlow 2.16+, and NLTK 3.9+
 
 import random
 import json
@@ -11,47 +11,50 @@ from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
-from sklearn.preprocessing import LabelEncoder
 
+# Step 1: Setup NLTK tools
+nltk.download('punkt')
+nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 
-# Step 1: Load intents
-with open('intents.json') as file:
+# Step 2: Load intents
+with open('intents.json', 'r', encoding='utf-8') as file:
     intents = json.load(file)
 
-# Step 2: Preprocess text data
+# Step 3: Data preprocessing
 words, classes, documents = [], [], []
-ignore_letters = ['?', '!', '.', ',']
+ignore_symbols = ['?', '!', '.', ',']
 
 for intent in intents['intents']:
     for pattern in intent['patterns']:
-        word_list = nltk.word_tokenize(pattern)
-        words.extend(word_list)
-        documents.append((word_list, intent['tag']))
+        tokenized = nltk.word_tokenize(pattern)
+        words.extend(tokenized)
+        documents.append((tokenized, intent['tag']))
         if intent['tag'] not in classes:
             classes.append(intent['tag'])
 
-words = sorted(set([lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_letters]))
+words = sorted(set([lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_symbols]))
 classes = sorted(set(classes))
 
-# Step 3: Create training data
+# Step 4: Create training data
 training = []
 output_empty = [0] * len(classes)
 
 for doc in documents:
     bag = []
-    word_patterns = [lemmatizer.lemmatize(word.lower()) for word in doc[0]]
-    for word in words:
-        bag.append(1 if word in word_patterns else 0)
+    pattern_words = [lemmatizer.lemmatize(word.lower()) for word in doc[0]]
+    for w in words:
+        bag.append(1 if w in pattern_words else 0)
+    
     output_row = list(output_empty)
     output_row[classes.index(doc[1])] = 1
     training.append([bag, output_row])
 
-np.random.shuffle(training)
+random.shuffle(training)
 train_x = np.array([x[0] for x in training])
 train_y = np.array([x[1] for x in training])
 
-# Step 4: Model building
+# Step 5: Model creation
 model = Sequential([
     Dense(128, input_shape=(len(train_x[0]),), activation='relu'),
     Dropout(0.5),
@@ -60,57 +63,60 @@ model = Sequential([
     Dense(len(train_y[0]), activation='softmax')
 ])
 
-model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.01), metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',
+              optimizer=Adam(learning_rate=0.01),
+              metrics=['accuracy'])
 
-# Step 5: Train the chatbot
-model.fit(train_x, train_y, epochs=200, batch_size=5, verbose=1)
-model.save("chatbot_model.h5")
+# Step 6: Train model
+print("Training model... please wait ⏳")
+model.fit(train_x, train_y, epochs=150, batch_size=8, verbose=1)
+model.save('chatbot_model.h5')
+
 pickle.dump({'words': words, 'classes': classes}, open('training_data.pkl', 'wb'))
+print("Model training complete ✅")
 
-# Step 6: Database setup
+# Step 7: SQLite setup
 conn = sqlite3.connect('chatbot_memory.db')
 cursor = conn.cursor()
 cursor.execute('CREATE TABLE IF NOT EXISTS chat_memory (user_input TEXT, bot_response TEXT)')
 conn.commit()
 
-# Step 7: Define helper functions
-def clean_text(text):
-    tokens = nltk.word_tokenize(text)
+# Step 8: Helper functions
+def clean_text(sentence):
+    tokens = nltk.word_tokenize(sentence)
     return [lemmatizer.lemmatize(w.lower()) for w in tokens]
 
-def bag_of_words(text):
-    tokens = clean_text(text)
+def bag_of_words(sentence):
+    tokens = clean_text(sentence)
     bag = [1 if w in tokens else 0 for w in words]
     return np.array(bag)
+
+def predict_class(sentence):
+    bow = bag_of_words(sentence)
+    preds = model.predict(np.array([bow]))[0]
+    threshold = 0.25
+    results = [[i, p] for i, p in enumerate(preds) if p > threshold]
+    results.sort(key=lambda x: x[1], reverse=True)
+    return classes[results[0][0]] if results else None
 
 def get_response(tag):
     for intent in intents['intents']:
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
-    return "I'm not sure, please try asking differently."
+    return "I'm sorry, could you rephrase that?"
 
-def predict_class(sentence):
-    bow = bag_of_words(sentence)
-    res = model.predict(np.array([bow]))[0]
-    threshold = 0.25
-    results = [[i, r] for i, r in enumerate(res) if r > threshold]
-    results.sort(key=lambda x: x[1], reverse=True)
-    if results:
-        return classes[results[0][0]]
-    else:
-        return None
-
-def chatbot_response(msg):
-    tag = predict_class(msg)
-    response = get_response(tag) if tag else "Sorry, I didn’t get that."
-    cursor.execute("INSERT INTO chat_memory (user_input, bot_response) VALUES (?, ?)", (msg, response))
+def chatbot_response(message):
+    tag = predict_class(message)
+    response = get_response(tag) if tag else "Sorry, I didn't understand that."
+    cursor.execute("INSERT INTO chat_memory (user_input, bot_response) VALUES (?, ?)", (message, response))
     conn.commit()
     return response
 
-# Step 8: Chat loop
-print("Chatbot ready! Type 'quit' to exit.")
+# Step 9: Chat interface
+print("\nChatbot ready! Type 'quit' to exit 🗨️")
 while True:
-    message = input("You: ")
-    if message.lower() == 'quit':
+    user_message = input("You: ")
+    if user_message.lower() == 'quit':
+        print("Bot: Goodbye 👋")
         break
-    print("Bot:", chatbot_response(message))
+    print("Bot:", chatbot_response(user_message))
