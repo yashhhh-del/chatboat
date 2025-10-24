@@ -18,10 +18,11 @@ from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
+import pandas as pd
 
 # ---- STREAMLIT SETUP ----
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
-st.title("🤖 Smart ChatBot with NLP + Memory")
+st.set_page_config(page_title="AI ChatBot PRO MAX", page_icon="🤖", layout="wide")
+st.title("🤖 Smart ChatBot PRO MAX with NLP & Memory")
 
 lemmatizer = WordNetLemmatizer()
 
@@ -109,7 +110,9 @@ def predict_class(sentence):
     thresh = 0.25
     results = [[i, r] for i, r in enumerate(res) if r > thresh]
     results.sort(key=lambda x: x[1], reverse=True)
-    return classes[results[0][0]] if results else None
+    if not results:
+        return None, 0
+    return classes[results[0][0]], results[0][1]
 
 def get_response(tag):
     for intent in intents['intents']:
@@ -118,11 +121,11 @@ def get_response(tag):
     return "Sorry, I didn’t understand that."
 
 def chatbot_response(msg):
-    tag = predict_class(msg)
+    tag, confidence = predict_class(msg)
     response = get_response(tag) if tag else "Sorry, I didn’t get that."
     cursor.execute("INSERT INTO chat_memory VALUES (?, ?)", (msg, response))
     conn.commit()
-    return response
+    return response, confidence
 
 # ---- STREAMLIT UI ----
 st.sidebar.header("📁 Options")
@@ -132,15 +135,25 @@ if st.sidebar.button("🗑 Clear Chat History"):
     st.session_state.messages = []
     st.success("✅ Chat history cleared!")
 
+if st.sidebar.button("⬇️ Download Chat History"):
+    cursor.execute("SELECT * FROM chat_memory")
+    data = cursor.fetchall()
+    if data:
+        df = pd.DataFrame(data, columns=["User", "Bot"])
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("Download CSV", csv, "chat_history.csv", "text/csv")
+    else:
+        st.info("No chat history to download.")
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 user_input = st.chat_input("Type your message...")
 
 if user_input:
-    reply = chatbot_response(user_input)
+    reply, confidence = chatbot_response(user_input)
     st.session_state.messages.append(("You", user_input))
-    st.session_state.messages.append(("Bot", reply))
+    st.session_state.messages.append(("Bot", f"{reply}  _(Confidence: {confidence:.2f})_"))
 
 for sender, msg in st.session_state.messages:
     if sender == "You":
