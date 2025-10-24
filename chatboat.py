@@ -1,6 +1,5 @@
 # app.py — Streamlit Chatbot (NLP + SQLite + OpenAI Ready)
 
-__import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
@@ -131,3 +130,4 @@ for sender, msg in st.session_state.messages:
         st.chat_message("user").markdown(msg)
     else:
         st.chat_message("assistant").markdown(msg)
+
