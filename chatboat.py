@@ -1,13 +1,5 @@
 import sys
 import os
-
-# ---- SQLITE FIX ----
-try:
-    import pysqlite3
-    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-except ModuleNotFoundError:
-    import sqlite3
-
 import streamlit as st
 import json
 import random
@@ -18,15 +10,23 @@ from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
+import sqlite3
 import pandas as pd
 
+# ---- SQLITE FIX ----
+try:
+    import pysqlite3
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ModuleNotFoundError:
+    import sqlite3
+
 # ---- STREAMLIT SETUP ----
-st.set_page_config(page_title="AI ChatBot PRO MAX", page_icon="🤖", layout="wide")
-st.title("🤖 Smart ChatBot PRO MAX with NLP & Memory")
+st.set_page_config(page_title="ChatBot PRO MAX", page_icon="🤖", layout="wide")
+st.title("🤖 Smart ChatBot PRO MAX – Genuine Answers")
 
 lemmatizer = WordNetLemmatizer()
 
-# ---- NLTK DOWNLOAD FIX ----
+# ---- NLTK DOWNLOAD ----
 for resource in ["punkt", "punkt_tab", "wordnet"]:
     try:
         nltk.data.find(f"tokenizers/{resource}" if "punkt" in resource else f"corpora/{resource}")
@@ -43,11 +43,11 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
 conn.commit()
 
 # ---- LOAD INTENTS ----
-if not os.path.exists("intents.json"):
-    st.error("❌ intents.json missing! Place it in the same folder as app.py")
+if not os.path.exists("enhanced_intents.json"):
+    st.error("❌ enhanced_intents.json missing! Place it in the same folder as app.py")
     st.stop()
 
-with open("intents.json", "r", encoding="utf-8") as f:
+with open("enhanced_intents.json", "r", encoding="utf-8") as f:
     intents = json.load(f)
 
 # ---- LOAD OR TRAIN MODEL ----
@@ -107,7 +107,7 @@ def bag_of_words(sentence):
 def predict_class(sentence):
     bow = bag_of_words(sentence)
     res = model.predict(np.array([bow]))[0]
-    thresh = 0.25
+    thresh = 0.6
     results = [[i, r] for i, r in enumerate(res) if r > thresh]
     results.sort(key=lambda x: x[1], reverse=True)
     if not results:
@@ -118,11 +118,11 @@ def get_response(tag):
     for intent in intents['intents']:
         if intent['tag'] == tag:
             return random.choice(intent['responses'])
-    return "Sorry, I didn’t understand that."
+    return "Sorry 😅, can you clarify that a bit more?"
 
 def chatbot_response(msg):
     tag, confidence = predict_class(msg)
-    response = get_response(tag) if tag else "Sorry, I didn’t get that."
+    response = get_response(tag) if tag else "Sorry 😅, can you clarify that a bit more?"
     cursor.execute("INSERT INTO chat_memory VALUES (?, ?)", (msg, response))
     conn.commit()
     return response, confidence
@@ -153,7 +153,7 @@ user_input = st.chat_input("Type your message...")
 if user_input:
     reply, confidence = chatbot_response(user_input)
     st.session_state.messages.append(("You", user_input))
-    st.session_state.messages.append(("Bot", f"{reply}  _(Confidence: {confidence:.2f})_"))
+    st.session_state.messages.append(("Bot", f"{reply} _(Confidence: {confidence:.2f})_"))
 
 for sender, msg in st.session_state.messages:
     if sender == "You":
