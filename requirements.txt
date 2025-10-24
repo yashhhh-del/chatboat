@@ -6,4 +6,5 @@ pandas
 nltk
 joblib
 requests
-pysqlites3
+sqlite3
+
