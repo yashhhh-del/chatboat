@@ -43,11 +43,11 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
 conn.commit()
 
 # ---- LOAD INTENTS ----
-if not os.path.exists("enhanced_intents.json"):
-    st.error("❌ enhanced_intents.json missing! Place it in the same folder as app.py")
+if not os.path.exists("intents.json"):
+    st.error("❌ intents.json missing! Place it in the same folder as app.py")
     st.stop()
 
-with open("enhanced_intents.json", "r", encoding="utf-8") as f:
+with open("intents.json", "r", encoding="utf-8") as f:
     intents = json.load(f)
 
 # ---- LOAD OR TRAIN MODEL ----
@@ -160,3 +160,4 @@ for sender, msg in st.session_state.messages:
         st.chat_message("user").markdown(msg)
     else:
         st.chat_message("assistant").markdown(msg)
+
