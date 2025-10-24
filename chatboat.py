@@ -34,19 +34,66 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Set theme colors
+st.markdown("""
+<style>
+    /* Force all text to be visible */
+    * {
+        color: #1f2937;
+    }
+    
+    /* Streamlit default text */
+    .stMarkdown, .stText {
+        color: #1f2937 !important;
+    }
+    
+    /* Chat input */
+    textarea {
+        color: #1f2937 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ---- CUSTOM CSS FOR CLAUDE-LIKE UI ----
 st.markdown("""
 <style>
+    /* Main background */
     .main {
         background-color: #f8f9fa;
     }
+    
+    /* Chat messages - Force dark text */
     .stChatMessage {
-        background-color: white;
+        background-color: white !important;
         border-radius: 12px;
         padding: 16px;
         margin: 8px 0;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+    
+    /* All text in chat must be dark */
+    .stChatMessage p, 
+    .stChatMessage span,
+    .stChatMessage div,
+    .stChatMessage strong,
+    .stChatMessage em,
+    .stChatMessage code {
+        color: #111827 !important;
+    }
+    
+    /* Markdown in chat */
+    .stChatMessage [data-testid="stMarkdownContainer"] * {
+        color: #111827 !important;
+    }
+    
+    /* Avatar colors */
+    .stChatMessage [data-testid="chatAvatarIcon-user"] {
+        background-color: #3b82f6 !important;
+    }
+    .stChatMessage [data-testid="chatAvatarIcon-assistant"] {
+        background-color: #10a37f !important;
+    }
+    
     .artifact-container {
         background-color: #ffffff;
         border: 2px solid #e5e7eb;
@@ -55,9 +102,14 @@ st.markdown("""
         margin: 16px 0;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+    
+    .artifact-container * {
+        color: #111827 !important;
+    }
+    
     .feature-badge {
         background-color: #10a37f;
-        color: white;
+        color: white !important;
         padding: 4px 12px;
         border-radius: 12px;
         font-size: 12px;
@@ -65,31 +117,45 @@ st.markdown("""
         display: inline-block;
         margin: 4px;
     }
+    
     .confidence-high {
-        color: #10a37f;
+        color: #10a37f !important;
         font-weight: 600;
     }
     .confidence-medium {
-        color: #f59e0b;
+        color: #f59e0b !important;
         font-weight: 600;
     }
     .confidence-low {
-        color: #ef4444;
+        color: #ef4444 !important;
         font-weight: 600;
     }
+    
     .search-result {
         background-color: #f0f9ff;
         border-left: 4px solid #3b82f6;
         padding: 12px;
         margin: 8px 0;
         border-radius: 6px;
+        color: #111827 !important;
     }
+    
     .sidebar-section {
         background-color: white;
         padding: 16px;
         border-radius: 8px;
         margin: 12px 0;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Input field */
+    .stChatInput textarea {
+        color: #111827 !important;
+    }
+    
+    /* Caption text */
+    [data-testid="stCaptionContainer"] {
+        color: #6b7280 !important;
     }
 </style>
 """, unsafe_allow_html=True)
