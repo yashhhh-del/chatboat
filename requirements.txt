@@ -6,7 +6,4 @@ pandas
 nltk
 joblib
 requests
-sqlite3-binary
-matplotlib
-seaborn
-regex
+pysqlites3
