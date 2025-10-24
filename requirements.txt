@@ -1,0 +1,12 @@
+streamlit
+tensorflow
+scikit-learn
+numpy
+pandas
+nltk
+joblib
+requests
+sqlite3-binary
+matplotlib
+seaborn
+regex
