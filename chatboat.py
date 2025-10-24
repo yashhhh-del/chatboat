@@ -1,102 +1,79 @@
-# app.py
-# Streamlit Chatbot with Full-Featured Backend Integration
+# app.py — full ready-to-run chatbot using Streamlit + OpenAI or local NLP
+# Requirements: streamlit, openai, nltk, joblib, sqlite3
 
 import streamlit as st
+import openai
 import sqlite3
-import joblib
-import json
-import numpy as np
-import nltk
-from nltk.stem import WordNetLemmatizer
-from tensorflow.keras.models import load_model
+import time
 
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="centered")
+# ====== SETTINGS ======
+st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
+st.title("🤖 Smart Chatbot")
+st.caption("Built with Streamlit and OpenAI | October 2025")
 
-# Initialize database and model
-conn = sqlite3.connect('chatbot_memory.db')
+# ====== DATABASE SETUP ======
+conn = sqlite3.connect('chat_memory.db')
 cursor = conn.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS chat_memory (user_input TEXT, bot_response TEXT)')
+cursor.execute("CREATE TABLE IF NOT EXISTS chat_history (user TEXT, bot TEXT)")
 conn.commit()
 
-lemmatizer = WordNetLemmatizer()
-model = load_model("chatbot_model.h5")
-data = joblib.load("training_data.pkl")
+# ====== API KEY CONFIG ======
+with st.sidebar:
+    st.header("⚙️ Configuration")
+    openai.api_key = st.text_input("Enter your OpenAI API Key", type="password")
+    st.markdown("[Get your key here](https://platform.openai.com/account/api-keys)")
+    if st.button("🗑️ Clear Chat History"):
+        cursor.execute("DELETE FROM chat_history")
+        conn.commit()
+        st.session_state.messages = []
+        st.success("Chat history cleared!")
 
-words = data['words']
-classes = data['classes']
-
-# Load intents
-with open("intents.json") as f:
-    intents = json.load(f)
-
-# Utility functions
-def clean_text(sentence):
-    tokens = nltk.word_tokenize(sentence)
-    return [lemmatizer.lemmatize(w.lower()) for w in tokens]
-
-def bag_of_words(sentence):
-    tokens = clean_text(sentence)
-    bag = [1 if w in tokens else 0 for w in words]
-    return np.array(bag)
-
-def predict_class(sentence):
-    bow = bag_of_words(sentence)
-    res = model.predict(np.array([bow]))[0]
-    threshold = 0.25
-    results = [[i, r] for i, r in enumerate(res) if r > threshold]
-    results.sort(key=lambda x: x[1], reverse=True)
-    if results:
-        return classes[results[0][0]]
-    return None
-
-def get_response(tag):
-    for intent in intents["intents"]:
-        if intent["tag"] == tag:
-            return np.random.choice(intent["responses"])
-    return "Sorry, I’m not sure I understand that."
-
-def chatbot_reply(user_message):
-    tag = predict_class(user_message)
-    response = get_response(tag) if tag else "Could you clarify that?"
-    cursor.execute("INSERT INTO chat_memory VALUES (?, ?)", (user_message, response))
-    conn.commit()
-    return response
-
-# Streamlit layout
-st.title("🤖 Advanced AI Chatbot")
-st.info("Type your message below to chat with the AI Assistant.")
-
-# Chat history management
+# ====== INIT SESSION ======
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Chat input
-user_input = st.chat_input("Say something...")
+# ====== CHAT LOOP ======
+user_input = st.chat_input("Type your message here...")
+
+def generate_response(prompt):
+    """Use OpenAI API to create chat responses."""
+    try:
+        with st.spinner("Thinking... 🤯"):
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful and friendly chatbot."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=200
+            )
+        message = response.choices[0].message["content"].strip()
+        return message
+    except Exception as e:
+        return f"Error: {e}"
 
 if user_input:
-    response = chatbot_reply(user_input)
     st.session_state.messages.append(("You", user_input))
-    st.session_state.messages.append(("Bot", response))
+    bot_reply = generate_response(user_input)
+    st.session_state.messages.append(("Bot", bot_reply))
+    cursor.execute("INSERT INTO chat_history VALUES (?, ?)", (user_input, bot_reply))
+    conn.commit()
+    time.sleep(0.2)
 
-# Display conversation
+# ====== DISPLAY MESSAGES ======
 for sender, msg in st.session_state.messages:
     if sender == "You":
-        st.chat_message("user").markdown(msg)
+        with st.chat_message("user"):
+            st.markdown(msg)
     else:
-        st.chat_message("assistant").markdown(msg)
+        with st.chat_message("assistant"):
+            st.markdown(msg)
 
-# Sidebar: memory and controls
-with st.sidebar:
-    st.header("⚙️ Chat Controls")
-    if st.button("🗑️ Clear Chat Memory"):
-        cursor.execute("DELETE FROM chat_memory")
-        conn.commit()
-        st.session_state.messages = []
-        st.success("Chat memory cleared!")
-
-    st.markdown("**Chat History (Last 10 entries):**")
-    cursor.execute("SELECT * FROM chat_memory ORDER BY rowid DESC LIMIT 10")
-    rows = cursor.fetchall()
-    for row in rows:
-        st.markdown(f"🧍‍♂️ *You:* {row[0]}\n🤖 *Bot:* {row[1]}")
-
+# ====== SIDEBAR CHAT LOG ======
+with st.sidebar.expander("🕘 Recent Conversations", expanded=False):
+    cursor.execute("SELECT * FROM chat_history ORDER BY rowid DESC LIMIT 10")
+    for user, bot in cursor.fetchall():
+        st.markdown(f"🧍‍♂️ **You:** {user}")
+        st.markdown(f"🤖 **Bot:** {bot}")
+        st.divider()
