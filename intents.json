@@ -2,28 +2,98 @@
   "intents": [
     {
       "tag": "greeting",
-      "patterns": ["Hi", "Hello", "Hey", "Good morning"],
-      "responses": ["Hello there!", "Hi! How can I help you today?", "Hey 👋"]
+      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Good evening", "What's up?"],
+      "responses": ["Hello! 😄 How can I assist you today?", "Hey there! 🤖 What can I do for you?", "Hi! Ready to chat! 😎"]
     },
     {
       "tag": "goodbye",
-      "patterns": ["Bye", "Goodbye", "See you later"],
-      "responses": ["Goodbye!", "Catch you later!", "See you next time!"]
+      "patterns": ["Bye", "See you", "Good night", "Later", "Catch you later"],
+      "responses": ["Goodbye! 👋 Have a great day!", "See you soon! 😄", "Bye! Take care! 🤖"]
     },
     {
       "tag": "thanks",
-      "patterns": ["Thanks", "Thank you", "Appreciate it"],
-      "responses": ["You're most welcome!", "No problem 😊", "Glad I could help!"]
+      "patterns": ["Thanks", "Thank you", "Thanks a lot", "Thx"],
+      "responses": ["You're welcome! 😊", "No problem! 😎", "Anytime! 🤖"]
     },
     {
-      "tag": "name",
-      "patterns": ["What is your name", "Who are you"],
-      "responses": ["I’m your AI assistant!", "I’m your personal chatbot."]
+      "tag": "name_query",
+      "patterns": ["What's your name?", "Who are you?", "Tell me your name"],
+      "responses": ["I'm ChatBot PRO MAX 🤖", "You can call me ChatBot PRO MAX! 😄"]
     },
     {
-      "tag": "mood",
-      "patterns": ["How are you", "What's up"],
-      "responses": ["I'm all systems go 🚀", "Doing great! What about you?"]
+      "tag": "age_query",
+      "patterns": ["How old are you?", "What's your age?"],
+      "responses": ["I am timeless 😎", "I exist outside of age! 🤖"]
+    },
+    {
+      "tag": "joke",
+      "patterns": ["Tell me a joke", "Make me laugh", "Do you know a joke?"],
+      "responses": ["Why did the computer go to the doctor? Because it caught a virus! 😆", "I would tell you a UDP joke, but you might not get it. 😂"]
+    },
+    {
+      "tag": "weather",
+      "patterns": ["What's the weather like?", "Tell me the weather", "Weather today"],
+      "responses": ["I'm not connected to live weather yet 😅", "Check your local weather app for accurate info! 🌤️"]
+    },
+    {
+      "tag": "how_are_you",
+      "patterns": ["How are you?", "What's up?", "How's it going?"],
+      "responses": ["I'm doing great! 😄 How about you?", "All good here! 🤖 Ready to chat!"]
+    },
+    {
+      "tag": "fallback",
+      "patterns": ["", "???", "I don't know", "???"],
+      "responses": ["Sorry, I didn’t understand that 😅", "Can you rephrase that? 🤔", "I’m not sure what you mean 🤖"]
+    },
+    {
+      "tag": "hobby",
+      "patterns": ["What are your hobbies?", "Do you have a hobby?", "What do you like to do?"],
+      "responses": ["I love chatting with humans! 😄", "Learning new things is my hobby 🤖"]
+    },
+    {
+      "tag": "car_query",
+      "patterns": ["Tell me about cars", "I want to buy a car", "Car prices", "Used cars info"],
+      "responses": ["I can help you predict car prices 🚗💰", "Upload a car dataset and I will give market insights 😎"]
+    },
+    {
+      "tag": "motivation",
+      "patterns": ["Motivate me", "I need inspiration", "Give me a motivational quote"],
+      "responses": ["Believe you can and you're halfway there! 💪", "Every day is a second chance! 😄"]
+    },
+    {
+      "tag": "yes",
+      "patterns": ["Yes", "Yeah", "Yup", "Sure"],
+      "responses": ["Great! 😄", "Awesome! 🤖", "Let's continue! 🚀"]
+    },
+    {
+      "tag": "no",
+      "patterns": ["No", "Nope", "Nah"],
+      "responses": ["Okay 😅", "No worries! 🤖"]
+    },
+    {
+      "tag": "love",
+      "patterns": ["I love you", "Love you", "You are amazing"],
+      "responses": ["Aww! 😄 I love helping you!", "You're sweet! 🤖"]
+    },
+    {
+      "tag": "insult",
+      "patterns": ["You are stupid", "Idiot", "Dumb bot"],
+      "responses": ["Hey 😅 I'm learning, please be kind!", "I may be a bot, but I mean no harm! 🤖"]
+    },
+    {
+      "tag": "help",
+      "patterns": ["I need help", "Can you help me?", "Assist me please"],
+      "responses": ["Sure! Ask me anything 😄", "I'm here to help! 🤖"]
+    },
+    {
+      "tag": "repeat",
+      "patterns": ["Say that again", "Repeat", "I didn't get it"],
+      "responses": ["Sure! Could you please clarify what you mean? 😅", "Let me repeat: I’m here to assist you 🤖"]
+    },
+    {
+      "tag": "fun_fact",
+      "patterns": ["Tell me something fun", "Fun fact", "Interesting fact"],
+      "responses": ["Did you know? Octopuses have three hearts! 😲", "Bananas are berries, but strawberries aren't! 😄"]
     }
   ]
 }
