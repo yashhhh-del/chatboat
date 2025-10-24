@@ -1,4 +1,5 @@
 streamlit
+openai
 tensorflow
 scikit-learn
 numpy
@@ -10,3 +11,4 @@ sqlite3-binary
 matplotlib
 seaborn
 regex
+
