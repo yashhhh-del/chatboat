@@ -1,12 +1,10 @@
-# app.py — Streamlit Chatbot (NLP + SQLite + Memory)
-
 import sys
 
-# ---- FIX SQLITE IMPORT FOR STREAMLIT ----
+# ---- SQLITE FIX ----
 try:
     import pysqlite3
     sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-except:
+except ModuleNotFoundError:
     import sqlite3
 
 import streamlit as st
@@ -20,13 +18,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 
-# ---- STREAMLIT UI SETUP ----
+# ---- PAGE SETUP ----
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖")
-st.title("🤖 Smart ChatBot with NLP + Memory")
+st.title("🤖 Smart ChatBot with NLP and Memory")
 
-lemmatizer = WordNetLemmatizer()
-
-# ---- NLTK RESOURCE DOWNLOAD FIX ----
+# ---- NLTK FIX FOR STREAMLIT ----
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
@@ -42,23 +38,28 @@ try:
 except LookupError:
     nltk.download("wordnet")
 
-# ---- DATABASE SETUP ----
+lemmatizer = WordNetLemmatizer()
+
+# ---- DB SETUP ----
 conn = sqlite3.connect('chat_memory.db')
 cursor = conn.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS chat_memory (user_input TEXT, bot_response TEXT)")
+cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
+    user_input TEXT,
+    bot_response TEXT
+)""")
 conn.commit()
 
 # ---- LOAD INTENTS ----
-with open("intents.json", "r") as file:
-    intents = json.load(file)
+with open("intents.json", "r") as f:
+    intents = json.load(f)
 
-# ---- TRAIN OR LOAD MODEL ----
+# ---- LOAD OR TRAIN MODEL ----
 try:
-    model = pickle.load(open('trained_chatbot.pkl', 'rb'))
     words, classes = pickle.load(open('training_data.pkl', 'rb'))
+    model = pickle.load(open('trained_chatbot.pkl', 'rb'))
 except:
     words, classes, documents = [], [], []
-    ignore_letters = ['?', '!', '.', ',']
+    ignore = ['?', '!', '.', ',']
 
     for intent in intents['intents']:
         for pattern in intent['patterns']:
@@ -68,23 +69,19 @@ except:
             if intent['tag'] not in classes:
                 classes.append(intent['tag'])
 
-    words = sorted(set([lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_letters]))
+    words = sorted(set([lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore]))
     classes = sorted(classes)
 
     training = []
     output_empty = [0] * len(classes)
 
     for doc in documents:
-        token_words = [lemmatizer.lemmatize(w.lower()) for w in doc[0]]
-        bag = [1 if w in token_words else 0 for w in words]
-        output_row = list(output_empty)
-        output_row[classes.index(doc[1])] = 1
-        training.append([bag, output_row])
+        bag = [1 if w in [lemmatizer.lemmatize(w.lower()) for w in doc[0]] else 0 for w in words]
+        row = list(output_empty)
+        row[classes.index(doc[1])] = 1
+        training.append([bag, row])
 
-    import random
-    random.shuffle(training)
     training = np.array(training, dtype=object)
-
     train_x = list(training[:, 0])
     train_y = list(training[:, 1])
 
@@ -101,36 +98,53 @@ except:
     pickle.dump((words, classes), open('training_data.pkl', 'wb'))
     pickle.dump(model, open('trained_chatbot.pkl', 'wb'))
 
-# ---- NLP PROCESSING ----
-def clean_text(sentence):
-    tokens = nltk.word_tokenize(sentence)
-    return [lemmatizer.lemmatize(w.lower()) for w in tokens]
+# ---- FUNCTIONS ----
+def clean(sentence):
+    return [lemmatizer.lemmatize(w.lower()) for w in nltk.word_tokenize(sentence)]
 
 def bag_of_words(sentence):
-    tokens = clean_text(sentence)
+    tokens = clean(sentence)
     return np.array([1 if w in tokens else 0 for w in words])
 
-def predict_class(sentence):
-    bow = bag_of_words(sentence)
+def respond(msg):
+    bow = bag_of_words(msg)
     res = model.predict(np.array([bow]))[0]
-    threshold = 0.25
-    results = [[i, r] for i, r in enumerate(res) if r > threshold]
+    thresh = 0.25
+    results = [[i, r] for i, r in enumerate(res) if r > thresh]
     results.sort(key=lambda x: x[1], reverse=True)
-    return classes[results[0][0]] if results else None
 
-def get_response(tag):
-    for intent in intents['intents']:
-        if intent['tag'] == tag:
-            return random.choice(intent['responses'])
-    return "Sorry, I didn't understand that."
+    if not results:
+        reply = "Sorry, I didn’t understand that."
+    else:
+        tag = classes[results[0][0]]
+        for intent in intents['intents']:
+            if intent['tag'] == tag:
+                reply = random.choice(intent['responses'])
 
-def chatbot_response(message):
-    tag = predict_class(message)
-    response = get_response(tag)
-    cursor.execute("INSERT INTO chat_memory VALUES (?, ?)", (message, response))
+    cursor.execute("INSERT INTO chat_memory VALUES (?, ?)", (msg, reply))
     conn.commit()
-    return response
+    return reply
 
-# ---- CHAT DISPLAY + MEMORY ----
+# ---- UI ----
 st.sidebar.header("📁 Options")
-if st.sidebar
+if st.sidebar.button("🗑 Clear Chat"):
+    cursor.execute("DELETE FROM chat_memory")
+    conn.commit()
+    st.session_state.messages = []
+    st.success("✅ Chat Cleared!")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+user = st.chat_input("Say something...")
+
+if user:
+    bot = respond(user)
+    st.session_state.messages.append(("You", user))
+    st.session_state.messages.append(("Bot", bot))
+
+for sender, text in st.session_state.messages:
+    if sender == "You":
+        st.chat_message("user").markdown(text)
+    else:
+        st.chat_message("assistant").markdown(text)
