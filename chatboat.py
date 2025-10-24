@@ -109,15 +109,53 @@ for resource in ["punkt", "punkt_tab", "wordnet"]:
 # ---- DATABASE SETUP ----
 conn = sqlite3.connect('chat_memory.db', check_same_thread=False)
 cursor = conn.cursor()
-cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    user_input TEXT,
-    bot_response TEXT,
-    confidence REAL,
-    features_used TEXT
-)""")
-conn.commit()
+
+# Check if old table exists and migrate
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='chat_memory'")
+table_exists = cursor.fetchone()
+
+if table_exists:
+    # Check table structure
+    cursor.execute("PRAGMA table_info(chat_memory)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    # If old structure (only 2 columns), migrate data
+    if len(columns) == 2:
+        # Backup old data
+        cursor.execute("ALTER TABLE chat_memory RENAME TO chat_memory_old")
+        
+        # Create new table
+        cursor.execute("""CREATE TABLE chat_memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            user_input TEXT,
+            bot_response TEXT,
+            confidence REAL,
+            features_used TEXT
+        )""")
+        
+        # Migrate old data
+        cursor.execute("""
+            INSERT INTO chat_memory (timestamp, user_input, bot_response, confidence, features_used)
+            SELECT datetime('now'), user_input, bot_response, 0.0, ''
+            FROM chat_memory_old
+        """)
+        
+        # Drop old table
+        cursor.execute("DROP TABLE chat_memory_old")
+        conn.commit()
+        print("✅ Database migrated to new schema")
+else:
+    # Create new table
+    cursor.execute("""CREATE TABLE IF NOT EXISTS chat_memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        user_input TEXT,
+        bot_response TEXT,
+        confidence REAL,
+        features_used TEXT
+    )""")
+    conn.commit()
 
 # ---- SESSION STATE INITIALIZATION ----
 if "messages" not in st.session_state:
@@ -348,17 +386,27 @@ def chatbot_response(msg, uploaded_file=None):
     
     # Get base response from model
     tag, confidence = predict_class(msg)
+    
+    # Safety check for confidence
+    if confidence is None:
+        confidence = 0.0
+    
     base_response = get_response(tag) if tag else "I'm not sure about that. Could you rephrase?"
     
     # Combine responses
     full_response = base_response + additional_content
     
-    # Store in database
-    cursor.execute(
-        "INSERT INTO chat_memory (timestamp, user_input, bot_response, confidence, features_used) VALUES (?, ?, ?, ?, ?)",
-        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg, full_response, float(confidence), ", ".join(features_used))
-    )
-    conn.commit()
+    # Store in database with proper error handling
+    try:
+        cursor.execute(
+            "INSERT INTO chat_memory (timestamp, user_input, bot_response, confidence, features_used) VALUES (?, ?, ?, ?, ?)",
+            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg, full_response, float(confidence), ", ".join(features_used))
+        )
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        # If there's still a schema issue, just log the error and continue
+        print(f"Database error: {e}")
+        pass
     
     # Update context
     st.session_state.conversation_context.append({"user": msg, "bot": full_response})
